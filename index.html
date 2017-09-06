@@ -15,7 +15,7 @@ var numberOfNodes = 100 // number of nodes
 var numberOfLinks = parseInt(0.05 * numberOfNodes * numberOfNodes / 2)
 var nodeObjects = [];
 var linkList = []
-
+var rewiringProbability = 0.6;
 var svg = d3.select("body")
             .append("svg")
             .attr("width", width)
@@ -27,9 +27,8 @@ var colors = d3.scaleOrdinal(d3.schemeCategory10);
 var simulation = d3.forceSimulation(nodes)
                    .force("charge", d3.forceManyBody().strength(-100))
                    .force("link", d3.forceLink(links).distance(50))
-
-.force("x", d3.forceX())
-.force("y", d3.forceY())
+                   .force("x", d3.forceX())
+                   .force("y", d3.forceY())
 .alphaTarget(1)
 .on("tick", ticked);
 
@@ -53,8 +52,8 @@ node = g.append("g").attr("stroke", "#fff").attr("stroke-width", 1.5).selectAll(
               .size([width, height]);*/
 
 //function randomGraph (n, m, charge) {
-//console.log(nodeObjects)
-setInterval(updateDynamics, 25)
+
+setInterval(updateDynamics, 10)
 
 function updateDynamics () {
     var activeNode = randomSelect(nodes)
@@ -74,11 +73,18 @@ function updateDynamics () {
         var activeNeighbor = randomSelect(neighbors)
 
         if (activeNode.opinion != activeNeighbor.opinion) {
+            if (Math.random() > rewiringProbability) {
+    console.log(activeNode.opinion, nodes[activeNode.index].opinion, activeNeighbor.opinion)
+                imitation(activeNode, activeNeighbor)
+                    console.log(activeNode.opinion, nodes[activeNode.index].opinion, activeNeighbor.opinion)
+                    console.log("")
+            }
+            else {
             adaptation(activeNode, activeNeighbor);
+            }
 
 
 
-                        //console.log(newNeighbor)
 
 
 
@@ -89,7 +95,7 @@ function updateDynamics () {
     update ();
 
 
-    console.log(links.length)
+
 }
 
 /*var force = d3.layout.force()
@@ -115,7 +121,8 @@ update ();
 function update () {
 
     node = node.data(nodes)
-    node = node.enter().append("circle").attr("fill", function(d) { return colors(d.opinion); }).attr("r", 8).merge(node);
+    node = node.enter().append("circle").attr("r", 8).merge(node);
+    node.attr("fill", function(d) { return colors(d.opinion); })
 
     link = link.data(links)
     link.exit().remove();
@@ -210,6 +217,15 @@ function randomSelect (s) {
         node.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
       });
     });*/
+
+
+function imitation (activeNode, activeNeighbor) {
+
+    nodes[activeNode.index].opinion = activeNeighbor.opinion;
+    console.log(activeNode.opinion, nodes[activeNode.index].opinion, activeNeighbor.opinion)
+}
+
+
 
 function adaptation (activeNode, activeNeighbor) {
             var newNeighbors = []
