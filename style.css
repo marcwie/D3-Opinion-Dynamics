@@ -1,5 +1,5 @@
 .link {
-    stroke: #aaa;
+    stroke: #95a5a6;
 }
 
 .node text {
@@ -11,5 +11,28 @@
     stroke: #fff;
     stroke-width: 3px;
     fill: #555;
+}
+
+.oneslider {
+  padding: 10px;
+}
+
+.btn-group {
+  margin: 10px;
+}
+
+.container {
+  margin-top: 50px;
+  margin-bottom: 50px;
+  font-family: 'Roboto', sans-serif;
+  }
+
+.text {
+  margin-top: 30px;
+  padding: 10px;
+}
+
+.impressum {
+  margin-top:20px;
 }
 

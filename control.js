@@ -6,14 +6,53 @@ var duration = 500;
 
 $(document).ready( function () {
 
+  $("#exploit").on("change", function () {
+      if (isrunning) {
+        clearInterval(timerID);
+        $(".myslider").prop("disabled", false)
+        isrunning = false;
+
+        $("#startstop").text("Start")
+        $("#reset").prop("disabled", false)
+      }
+  mode = "exploit"
+  console.log(mode)
+  reset();
+  })
+
+  $("#avm").on("change", function () {
+      if (isrunning) {
+        clearInterval(timerID);
+        $(".myslider").prop("disabled", false)
+        isrunning = false;
+        $("#startstop").text("Start")
+        $("#reset").prop("disabled", false)
+      }
+
+      mode = "avm"
+      console.log(mode)
+      reset();
+  })
+
+
+  /*$("#exploit") {
+      mode = "exploit"
+      $(this).prop(disabled, true)
+      $("#avm").prop(disabled, false)
+      $(this).toggle()
+    }*/
+
+
   $("#startstop").on("click", function () {
     if (isrunning == false) {
       isrunning = true;
       $(this).text("Stop")
       $("#reset").prop("disabled", true)
-      rewiringProbability = $("#rewiring").val();
 
-      speedIndicator = $("#speed").val();
+      rewiringProbability = $("#rewiring").val();
+      deltaT = $("#deltat").val();
+      speedIndicator = $("#speedslider").val();
+
       if (speedIndicator == 1) {
         isslow = true;
         speed = 3000;
@@ -26,12 +65,13 @@ $(document).ready( function () {
       }
       if (speedIndicator == 3) {
         isslow = false;
-        speed = 10;
+
+        if ( mode == "avm") {speed = 20; }
+        else { speed = 5 };
         duration = 0;
       }
 
-      $("#rewiring").prop("disabled", true)
-      $("#speed").prop("disabled", true)
+      $(".myslider").prop("disabled", true)
 
       updateDynamics()
       timerID = setInterval(updateDynamics, speed);
@@ -41,8 +81,7 @@ $(document).ready( function () {
       isrunning = false;
       $(this).text("Start")
       $("#reset").prop("disabled", false)
-      $("#rewiring").prop("disabled", false)
-      $("#speed").prop("disabled", false)
+      $(".myslider").prop("disabled", false)
     }
   });
 

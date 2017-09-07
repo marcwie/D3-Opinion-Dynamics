@@ -1,30 +1,18 @@
-var width = 800
+var width = 960
 var height = 600
 var numberOfNodes = 100 // number of nodes
-var averageDegree = 10
-var numberOfLinks = averageDegree * 0.5 * numberOfNodes; //parseInt(0.05 * numberOfNodes * numberOfNodes / 2)
-//var numberOfLinks = parseInt(0.05 * numberOfNodes * numberOfNodes / 2)
+var numberOfLinks = parseInt(0.05 * numberOfNodes * numberOfNodes / 2)
 var nodeObjects = [];
 var linkList = []
 var rewiringProbability;
-var svg = d3.select("#svg").append("svg").attr("width", width).attr("height", height);
-var colorsList = ["#3498db", "#e74c3c"]
-var colorsScale = d3.scaleOrdinal(d3.schemeCategory10);
+var svg = d3.select("body").append("svg").attr("width", width).attr("height", height);
+var colors = d3.scaleOrdinal(d3.schemeCategory10);
 var nodes;
 var links;
-var gamma = 1;
-var mode = "avm"
-var numberOfOpinions;
-var strength = -15 * averageDegree;
-
-function colors (opinion) {
-  if ( mode == "avm") { return colorsScale(opinion); }
-  else { return colorsList[opinion]; }
-}
 
 // Inititalize the simulation
 var simulation = d3.forceSimulation(nodes)
-                   .force("charge", d3.forceManyBody().strength(strength))
+                   .force("charge", d3.forceManyBody().strength(-100))
                    .force("link", d3.forceLink(links).distance(50))
                    .force("x", d3.forceX())
                    .force("y", d3.forceY())
@@ -32,7 +20,7 @@ var simulation = d3.forceSimulation(nodes)
                    .on("tick", ticked);
 
 var g = svg.append("g").attr("transform", "translate(" + width / 2 + "," + height / 2 + ")")
-var link = g.append("g").attr("stroke", "#bdc3c7").attr("stroke-width", 1.5).selectAll(".link")
+var link = g.append("g").attr("stroke", "#000").attr("stroke-width", 1.5).selectAll(".link")
 var node = g.append("g").attr("stroke", "#fff").attr("stroke-width", 1.5).selectAll(".node")
 
 reset()
@@ -42,28 +30,21 @@ function reset () {
   list = randomChoose(unorderedPairs(d3.range(numberOfNodes)), numberOfLinks);
   links = list.map(function (a) { return {source: a[0], target: a[1]} });
 
-  if (mode == "avm") { numberOfOpinions = 8; }
-  else { numberOfOpinions = 2 }
-
-  var opinions = randomAssign(d3.range(numberOfOpinions), numberOfNodes);
+  var opinions = randomAssign(d3.range(10), numberOfNodes);
   for (var i=0; i<nodes.length; i++) {
     nodes[i].opinion = opinions[i]
-    nodes[i].stock = [0.5]
-    nodes[i].size = 10;
+    nodes[i].size = 8;
   }
   updateNetwork ();
 }
 
 function updateDynamics () {
-
-
-
   var activeNode = randomSelect(nodes)
   var delay = 0;
 
   if (isslow) {
   activeNode.size = 20;
-  node.transition().delay(delay).duration(duration).attr("r", function(d) {  return d.size });
+  node.transition().delay(delay).duration(duration).attr("r", function(d) { console.log(d.size); return d.size });
   delay = delay + duration;
   }
 
@@ -78,19 +59,17 @@ function updateDynamics () {
     var activeNeighbor = randomSelect(neighbors)
 
     if (isslow) {
-    activeNeighbor.size *= 2.5;
-    node.transition().delay(delay).duration(duration).attr("r", function(d) { return d.size });
+    activeNeighbor.size = 20;
+    node.transition().delay(delay).duration(duration).attr("r", function(d) { console.log(d.size); return d.size });
     delay = delay + duration;
     }
 
     if (activeNode.opinion != activeNeighbor.opinion) {
       if (Math.random() > rewiringProbability) {
-        if ( mode == "avm" ) { imitation(activeNode, activeNeighbor) }
-        else { socialLearning(activeNode, activeNeighbor) }
+        imitation(activeNode, activeNeighbor)
 
         if (isslow) {
-        node.transition().delay(delay).duration(duration)
-                         .attr("fill", function(d) { return colors(d.opinion) })
+        node.transition().delay(delay).duration(duration).attr("fill", function(d) { return colors(d.opinion); })
         delay = delay + duration;
         }
 
@@ -99,8 +78,8 @@ function updateDynamics () {
         newNeighbor = adaptation(activeNode, activeNeighbor);
 
         if (isslow) {
-        newNeighbor.size *= 2.5;
-        node.transition().delay(delay).duration(duration).attr("r", function(d) { return d.size });
+        newNeighbor.size = 20;
+        node.transition().delay(delay).duration(duration).attr("r", function(d) { console.log(d.size); return d.size });
         delay = delay + duration;
 
         setTimeout(function() {
@@ -122,11 +101,10 @@ function updateDynamics () {
     };
   };
 
-  nodes.map(function (d) { d.size = 4 + d.stock[d.stock.length - 1] * 12 })
 
   if (isslow) {
-  node.transition().delay(delay).duration(duration)
-      .attr("r", function (d) { return d.size });
+  nodes.map(function (d) { d.size = 8})
+  node.transition().delay(delay).duration(duration).attr("r", 8);
 
   setTimeout(function() {
     simulation.nodes(nodes);
@@ -134,17 +112,14 @@ function updateDynamics () {
     simulation.alpha(1).restart();
   }, delay)
   }
-
   else { updateNetwork(); }
-  if ( mode == "exploit") { updateStocks(); }
 }
 
 function updateNetwork () {
 
     node = node.data(nodes)
-    node = node.enter().append("circle").merge(node);
+    node = node.enter().append("circle").attr("r", 8).merge(node);
     node.attr("fill", function(d) { return colors(d.opinion); })
-        .attr("r", function (d) { return d.size })
 
     link = link.data(links)
     link.exit().remove();
@@ -153,11 +128,6 @@ function updateNetwork () {
     simulation.nodes(nodes);
     simulation.force("link").links(links);
     simulation.alpha(1).restart();
-
-  node.on("click", function(d) {
-    console.log( d.opinion, d.stock )
-  })
-
 
 };
 
@@ -206,22 +176,6 @@ function randomSelect (s) {
 function imitation (activeNode, activeNeighbor) {
   nodes[activeNode.index].opinion = activeNeighbor.opinion;
 }
-
-function socialLearning (activeNode, activeNeighbor) {
-  var e2 = 2 * deltaE * activeNeighbor.opinion + 1 - deltaE
-  var h2 = activeNeighbor.stock[activeNeighbor.stock.length - 1] * e2
-
-  var e1 = 2 * deltaE * activeNode.opinion + 1 - deltaE
-  var h1 = activeNode.stock[activeNode.stock.length - 1] * e1
-
-  var deltaHarvest = h2 - h1
-
-  probability = 0.5 * Math.tanh (gamma * deltaHarvest) + 0.5
-  if (Math.random() < probability) {
-    nodes[activeNode.index].opinion = activeNeighbor.opinion;
-  }
-}
-
 
 function adaptation (activeNode, activeNeighbor) {
   var newNeighbors = []
