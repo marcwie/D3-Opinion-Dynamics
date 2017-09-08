@@ -15,7 +15,8 @@ var links;
 var gamma = 1;
 var mode = "avm"
 var numberOfOpinions;
-var strength = -15 * averageDegree;
+var strength = -150
+
 
 function colors (opinion) {
   if ( mode == "avm") { return colorsScale(opinion); }
@@ -38,6 +39,7 @@ var node = g.append("g").attr("stroke", "#fff").attr("stroke-width", 1.5).select
 reset()
 
 function reset () {
+
   nodes = d3.range(numberOfNodes).map(Object);
   list = randomChoose(unorderedPairs(d3.range(numberOfNodes)), numberOfLinks);
   links = list.map(function (a) { return {source: a[0], target: a[1]} });

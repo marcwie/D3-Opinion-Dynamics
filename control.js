@@ -16,6 +16,8 @@ $(document).ready( function () {
         $("#reset").prop("disabled", false)
       }
   mode = "exploit"
+  averageDegree = 20
+  numberOfLinks = averageDegree * 0.5 * numberOfNodes;
   console.log(mode)
   reset();
   })
@@ -30,6 +32,8 @@ $(document).ready( function () {
       }
 
       mode = "avm"
+      averageDegree = 10
+      numberOfLinks = averageDegree * 0.5 * numberOfNodes;
       console.log(mode)
       reset();
   })
@@ -51,6 +55,9 @@ $(document).ready( function () {
 
       rewiringProbability = $("#rewiring").val();
       deltaT = $("#deltat").val();
+      if (deltaT > 1) {
+        deltaT *= 3;
+      }
       speedIndicator = $("#speedslider").val();
 
       if (speedIndicator == 1) {
