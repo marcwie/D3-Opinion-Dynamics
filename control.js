@@ -58,6 +58,9 @@ $(document).ready( function () {
       if (deltaT > 1) {
         deltaT *= 3;
       }
+      if (deltaT == 0.5) {
+        deltaT /= 6;
+      }
       speedIndicator = $("#speedslider").val();
 
       if (speedIndicator == 1) {
